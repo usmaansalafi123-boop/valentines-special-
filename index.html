@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Valentine Book 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Password Screen */
+        .password-screen {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .password-screen h1 {
+            color: #e74c3c;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .password-screen input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .password-screen button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .password-screen button:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Book Container */
+        .book-container {
+            display: none;
+            perspective: 2000px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .book {
+            width: 100%;
+            height: 700px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #fffef7;
+            border: 3px solid #d4a574;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            padding: 60px 50px;
+            overflow-y: auto;
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-origin: left center;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                rgba(0,0,0,0.05) 0%, 
+                transparent 5%, 
+                transparent 95%, 
+                rgba(0,0,0,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .page.hidden {
+            display: none;
+        }
+
+        .page.current {
+            z-index: 10;
+            transform: rotateY(0deg);
+        }
+
+        .page.turning {
+            z-index: 20;
+            animation: pageTurn 1.2s forwards;
+        }
+
+        .page.turned {
+            transform: rotateY(-180deg);
+            z-index: 5;
+        }
+
+        @keyframes pageTurn {
+            0% {
+                transform: rotateY(0deg);
+            }
+            100% {
+                transform: rotateY(-180deg);
+            }
+        }
+
+        .page h2 {
+            color: #e74c3c;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2em;
+            font-family: 'Brush Script MT', cursive;
+        }
+
+        .page p {
+            color: #333;
+            line-height: 2;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 30px;
+            right: 50px;
+            font-size: 1em;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            color: white;
+            font-size: 1.2em;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        /* Hearts Animation */
+        .hearts {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(231, 76, 60, 0.6);
+            transform: rotate(45deg);
+            animation: float 6s infinite;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(231, 76, 60, 0.6);
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -10px;
+            left: 0;
+        }
+
+        .heart::after {
+            left: 10px;
+            top: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(45deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .book {
+                height: 600px;
+            }
+            
+            .page {
+                padding: 40px 30px;
+            }
+            
+            .page h2 {
+                font-size: 1.5em;
+            }
+            
+            .page p {
+                font-size: 1em;
+            }
+            
+            .page-number {
+                right: 30px;
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Hearts -->
+    <div class="hearts" id="hearts"></div>
+
+    <!-- Password Screen -->
+    <div class="password-screen" id="passwordScreen">
+        <h1>🔒 Enter Password</h1>
+        <p style="color: #666; margin-bottom: 20px;">Unlock your special Valentine's message</p>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button onclick="checkPassword()">Unlock 💕</button>
+        <p class="error-message" id="errorMessage">Incorrect password. Try again!</p>
+    </div>
+
+    <!-- Book Container -->
+    <div class="book-container" id="bookContainer">
+        <div class="book" id="book">
+            <!-- Pages will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation" id="navigation">
+        <button class="nav-button" id="prevBtn" onclick="previousPage()">← Previous</button>
+        <div class="page-indicator" id="pageIndicator">Page 1 of 5</div>
+        <button class="nav-button" id="nextBtn" onclick="nextPage()">Next →</button>
+    </div>
+
+    <script>
+        // ===== EDIT THESE VALUES =====
+        
+        const CORRECT_PASSWORD = "04122023";
+        
+        // Add your messages here - you can add as many as you want!
+        const messages = [
+            {
+                title: "Page 1: Our first meet❤️ ",
+                content: "I Still Remember We I First Saw You this feels like yesterday when we first started talking i still remember you wearing a black frock,black bottom and black duppatta.It feels like yesterday when i first hugged you I hope you still remember all of it,days that we spent together those were the best days of my life"
+            },
+            {
+                title: "page 2: 🌹 Eternal Rose",
+                content: "you must be wondering where are the roses but lemme tell you  that the beauty of  flowers feather away with time but there is something more than jus giving flowers on valentine its the promise and the bond that we forget everyone  jus thinks about giving chocolates and flowers but the only thing that truly matters is the that we share and the promises that we make to eachother and i promise you that i will be forever yours and i hope you feel the same way and one more thing i know at this point you must be thinking that was a solid excuse yaa i will give you roses dont worry 🤣  "
+            },
+            {
+                title: "Page 3: 🍕 Cheezy Balls",
+                content: "at first i thought i should get you a chocolate but then i remembered that you dont like it so here we are i am giving you your favorite cheezy balls i hope you like it and there a time difference when you get your cheezy balls you probably would have read it by then but yaa i hope you like it "
+            },
+            {
+                title: "Page 4: A little message from me ",
+                content: "I know you are feeling so many things all the time and you are not sure what is causing them like i have told you previously you will always find me by your side i know i havent done much to you but i will inshallah ."
+            },
+            {
+                title: "Page 5: 💌 Love Letter and some final words from me ",
+                
+                content: "Its been 2 year i cant imagine to me its jus yesterday when we first met i wanna say to you i know during these days i wasnt able to do anything for you i am really ashmed cuz of that i will make up to that i promise you that and i also know that i made you cry so many times i will make up to that also spekaing of which i Remember every sec every min that we spent together i really wanna say you thankyou for everything you did the person i am right now is because of you.You made me realise what it really means to love someone ik you would have preffered a hand written letter but i wanted to show this ik this isnt much but a token of love and gratitude from me "
+            },
+            {
+                title: "",
+                content: " And i wanted to give you a thing that you can always keep close to yourself so i came up with this i jus wanted you to know that i am so in love with you i cant explain I read a quote and it said trust an overthinker when he says he loves you because they have thought about every reason not to and trust me when i say i am an overthinker okay i know a lot has been going around in our lives and i dunno what happened to us i mean we used to talk all the time and we were happy,at least i think we were but i cant understand those emotions surging through i hope you tell me more about it and to be honest i think that neither i deserve to be in your life nor do you need me and sometimes that really hurts me but it is what it, i didnt want to make this a sad type letter so i hope you find your happiness and i hope you all the best.Do your best in exams "
+            },
+            
+               
+            
+        ];
+        
+        // ===== END OF EDITABLE SECTION =====
+
+        let currentPage = 0;
+
+        // Create floating hearts
+        function createHearts() {
+            const heartsContainer = document.getElementById('hearts');
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Check password
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (input === CORRECT_PASSWORD) {
+                document.getElementById('passwordScreen').style.display = 'none';
+                document.getElementById('bookContainer').style.display = 'block';
+                document.getElementById('navigation').style.display = 'flex';
+                generatePages();
+            } else {
+                errorMessage.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // Allow Enter key to submit password
+        document.getElementById('passwordInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Generate pages
+        function generatePages() {
+            const book = document.getElementById('book');
+            messages.forEach((message, index) => {
+                const page = document.createElement('div');
+                page.className = index === 0 ? 'page current' : 'page hidden';
+                page.setAttribute('data-page', index);
+                page.innerHTML = `
+                    <h2>${message.title}</h2>
+                    <p>${message.content}</p>
+                    <div class="page-number">${index + 1}</div>
+                `;
+                book.appendChild(page);
+            });
+            updateNavigation();
+        }
+
+        // Navigation functions
+        function nextPage() {
+            if (currentPage < messages.length - 1) {
+                const pages = document.querySelectorAll('.page');
+                const currentPageEl = pages[currentPage];
+                
+                // Start page turn animation
+                currentPageEl.classList.remove('current');
+                currentPageEl.classList.add('turning');
+                
+                // After animation completes
+                setTimeout(() => {
+                    currentPageEl.classList.remove('turning');
+                    currentPageEl.classList.add('turned');
+                    currentPageEl.classList.add('hidden');
+                    
+                    currentPage++;
+                    pages[currentPage].classList.remove('hidden');
+                    pages[currentPage].classList.add('current');
+                    updateNavigation();
+                }, 1200);
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 0) {
+                const pages = document.querySelectorAll('.page');
+                const currentPageEl = pages[currentPage];
+                
+                // Hide current page
+                currentPageEl.classList.remove('current');
+                currentPageEl.classList.add('hidden');
+                
+                currentPage--;
+                const previousPageEl = pages[currentPage];
+                
+                // Show and reverse animation for previous page
+                previousPageEl.classList.remove('hidden');
+                previousPageEl.classList.remove('turned');
+                previousPageEl.classList.add('turning');
+                
+                setTimeout(() => {
+                    previousPageEl.classList.remove('turning');
+                    previousPageEl.classList.add('current');
+                    updateNavigation();
+                }, 100);
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage === messages.length - 1;
+            document.getElementById('pageIndicator').textContent = 
+                `Page ${currentPage + 1} of ${messages.length}`;
+        }
+
+        // Initialize
+        createHearts();
+    </script>
+</body>
+</html>
